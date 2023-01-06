@@ -3901,9 +3901,17 @@ self.C3_GetObjectRefTable = function () {
 		C3.Behaviors.Platform.Cnds.IsFalling,
 		C3.Plugins.Sprite.Cnds.IsOverlapping,
 		C3.Plugins.Sprite.Acts.Destroy,
-		C3.Plugins.System.Cnds.OnLayoutStart,
 		C3.Behaviors.Platform.Cnds.OnLand,
-		C3.Plugins.System.Acts.SetBoolVar
+		C3.Plugins.System.Acts.SetBoolVar,
+		C3.Plugins.Sprite.Acts.SetPos,
+		C3.Plugins.Text.Acts.SetPos,
+		C3.Plugins.System.Acts.AddVar,
+		C3.Plugins.Touch.Cnds.IsTouchingObject,
+		C3.Plugins.System.Acts.RestartLayout,
+		C3.Plugins.System.Acts.ResetGlobals,
+		C3.Plugins.Touch.Cnds.OnTouchStart,
+		C3.Plugins.System.Acts.GoToLayout,
+		C3.Plugins.System.Cnds.OnLayoutStart
 	];
 };
 self.C3_JsPropNameTable = [
@@ -3922,6 +3930,10 @@ self.C3_JsPropNameTable = [
 	{Banana: 0},
 	{Audio: 0},
 	{Sprite: 0},
+	{RestartBtn: 0},
+	{Text: 0},
+	{Sprite2: 0},
+	{Text2: 0},
 	{max_x: 0},
 	{game_speed: 0},
 	{next_platform: 0},
@@ -4086,7 +4098,12 @@ self.C3_ExpressionFuncs = [
 			return () => (v0.GetValue() + 1);
 		},
 		() => "Crunch",
-		() => "Damage"
+		() => "Damage",
+		() => 360,
+		() => 240,
+		() => 80,
+		() => 20,
+		() => 10
 ];
 
 
