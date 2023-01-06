@@ -3730,6 +3730,24 @@ SampleRate(){return this._sampleRate},CurrentTime(){if(self["C3_GetAudioContextC
 }
 
 {
+'use strict';{const C3=self.C3;C3.Plugins.LocalStorage=class LocalStoragePlugin extends C3.SDKPluginBase{constructor(opts){super(opts)}Release(){super.Release()}}}{const C3=self.C3;C3.Plugins.LocalStorage.Type=class LocalStorageType extends C3.SDKTypeBase{constructor(objectClass){super(objectClass)}Release(){super.Release()}OnCreate(){}}}
+{const C3=self.C3;C3.Plugins.LocalStorage.Instance=class LocalStorageInstance extends C3.SDKInstanceBase{constructor(inst,properties){super(inst);this._currentKey="";this._lastValue="";this._keyNamesList=[];this._errorMessage="";this._pendingGets=0;this._pendingSets=0;this._storage=this._runtime._GetProjectStorage();this._debugCache=new Map;this._isLoadingDebugCache=false}Release(){super.Release()}async _TriggerStorageError(err){this._errorMessage=this._GetErrorString(err);await this.TriggerAsync(C3.Plugins.LocalStorage.Cnds.OnError)}_GetErrorString(err){if(!err)return"unknown error";
+else if(typeof err==="string")return err;else if(typeof err.message==="string")return err.message;else if(typeof err.name==="string")return err.name;else if(typeof err.data==="string")return err.data;else return"unknown error"}GetDebuggerProperties(){if(!this._isLoadingDebugCache)this._DebugCacheStorage();return[{title:"plugins.localstorage.name",properties:[...this._debugCache.entries()].map(entry=>({name:"$"+entry[0],value:entry[1],onedit:v=>this._storage.setItem(entry[0],v)}))}]}async _DebugCacheStorage(){this._isLoadingDebugCache=
+true;try{const keyList=await this._storage.keys();keyList.sort((a,b)=>{const la=a.toLowerCase();const lb=b.toLowerCase();if(la<lb)return-1;else if(lb<la)return 1;else return 0});const values=await Promise.all(keyList.map(key=>this._storage.getItem(key)));this._debugCache.clear();for(let i=0,len=keyList.length;i<len;++i)this._debugCache.set(keyList[i],values[i])}catch(err){console.warn("[C3 debugger] Error displaying local storage: ",err)}finally{this._isLoadingDebugCache=false}}}}
+{const C3=self.C3;C3.Plugins.LocalStorage.Cnds={OnItemSet(key){return this._currentKey===key},OnAnyItemSet(){return true},OnItemGet(key){return this._currentKey===key},OnAnyItemGet(){return true},OnItemRemoved(key){return this._currentKey===key},OnAnyItemRemoved(){return true},OnCleared(){return true},OnAllKeyNamesLoaded(){return true},OnError(){return true},OnItemExists(key){return this._currentKey===key},OnItemMissing(key){return this._currentKey===key},CompareKey(cmp,key){return C3.compare(this._currentKey,
+cmp,key)},CompareValue(cmp,v){return C3.compare(this._lastValue,cmp,v)},IsProcessingSets(){return this._pendingSets>0},IsProcessingGets(){return this._pendingGets>0},OnAllSetsComplete(){return true},OnAllGetsComplete(){return true}}}
+{const C3=self.C3;function IsExpressionType(x){return typeof x==="string"||typeof x==="number"}C3.Plugins.LocalStorage.Acts={async SetItem(key,value){this._pendingSets++;try{const valueSet=await this._storage.setItem(key,value);await this.ScheduleTriggers(async()=>{this._currentKey=key;this._lastValue=valueSet;await this.TriggerAsync(C3.Plugins.LocalStorage.Cnds.OnAnyItemSet);await this.TriggerAsync(C3.Plugins.LocalStorage.Cnds.OnItemSet)})}catch(err){await this._TriggerStorageError(err)}finally{this._pendingSets--;
+if(this._pendingSets===0)await this.TriggerAsync(C3.Plugins.LocalStorage.Cnds.OnAllSetsComplete)}},async SetBinaryItem(key,objectClass){if(!objectClass)return;const inst=objectClass.GetFirstPicked(this._inst);if(!inst)return;const sdkInst=inst.GetSdkInstance();if(!sdkInst)return;const buffer=sdkInst.GetArrayBufferReadOnly();this._pendingSets++;try{await this._storage.setItem(key,buffer);await this.ScheduleTriggers(async()=>{this._currentKey=key;this._lastValue="";await this.TriggerAsync(C3.Plugins.LocalStorage.Cnds.OnAnyItemSet);
+await this.TriggerAsync(C3.Plugins.LocalStorage.Cnds.OnItemSet)})}catch(err){await this._TriggerStorageError(err)}finally{this._pendingSets--;if(this._pendingSets===0)await this.TriggerAsync(C3.Plugins.LocalStorage.Cnds.OnAllSetsComplete)}},async GetItem(key){this._pendingGets++;try{const value=await this._storage.getItem(key);await this.ScheduleTriggers(async()=>{this._currentKey=key;this._lastValue=IsExpressionType(value)?value:"";await this.TriggerAsync(C3.Plugins.LocalStorage.Cnds.OnAnyItemGet);
+await this.TriggerAsync(C3.Plugins.LocalStorage.Cnds.OnItemGet)})}catch(err){await this._TriggerStorageError(err)}finally{this._pendingGets--;if(this._pendingGets===0)await this.TriggerAsync(C3.Plugins.LocalStorage.Cnds.OnAllGetsComplete)}},async GetBinaryItem(key,objectClass){if(!objectClass)return;const inst=objectClass.GetFirstPicked(this._inst);if(!inst)return;const sdkInst=inst.GetSdkInstance();this._pendingGets++;try{let value=await this._storage.getItem(key);value=value instanceof ArrayBuffer?
+value:new ArrayBuffer(0);await this.ScheduleTriggers(async()=>{this._lastValue="";this._currentKey=key;sdkInst.SetArrayBufferTransfer(value);await this.TriggerAsync(C3.Plugins.LocalStorage.Cnds.OnAnyItemGet);await this.TriggerAsync(C3.Plugins.LocalStorage.Cnds.OnItemGet)})}catch(err){await this._TriggerStorageError(err)}finally{this._pendingGets--;if(this._pendingGets===0)await this.TriggerAsync(C3.Plugins.LocalStorage.Cnds.OnAllGetsComplete)}},async CheckItemExists(key){try{const value=await this._storage.getItem(key);
+await this.ScheduleTriggers(async()=>{this._currentKey=key;if(typeof value==="undefined"||value===null){this._lastValue="";await this.TriggerAsync(C3.Plugins.LocalStorage.Cnds.OnItemMissing)}else{this._lastValue=IsExpressionType(value)?value:"";await this.TriggerAsync(C3.Plugins.LocalStorage.Cnds.OnItemExists)}})}catch(err){await this._TriggerStorageError(err)}},async RemoveItem(key){try{await this._storage.removeItem(key);await this.ScheduleTriggers(async()=>{this._currentKey=key;this._lastValue=
+"";await this.TriggerAsync(C3.Plugins.LocalStorage.Cnds.OnAnyItemRemoved);await this.TriggerAsync(C3.Plugins.LocalStorage.Cnds.OnItemRemoved)})}catch(err){await this._TriggerStorageError(err)}},async ClearStorage(){try{await this._storage.clear();await this.ScheduleTriggers(async()=>{this._currentKey="";this._lastValue="";C3.clearArray(this._keyNamesList);await this.TriggerAsync(C3.Plugins.LocalStorage.Cnds.OnCleared)})}catch(err){await this._TriggerStorageError(err)}},async GetAllKeyNames(){try{const keyList=
+await this._storage.keys();await this.ScheduleTriggers(async()=>{this._keyNamesList=keyList;await this.TriggerAsync(C3.Plugins.LocalStorage.Cnds.OnAllKeyNamesLoaded)})}catch(err){await this._TriggerStorageError(err)}}}}{const C3=self.C3;C3.Plugins.LocalStorage.Exps={ItemValue(){return this._lastValue},Key(){return this._currentKey},KeyCount(){return this._keyNamesList.length},KeyAt(i){i=Math.floor(i);if(i<0||i>=this._keyNamesList.length)return"";return this._keyNamesList[i]},ErrorMessage(){return this._errorMessage}}};
+
+}
+
+{
 'use strict';{const C3=self.C3;C3.Behaviors.Platform=class PlatformBehavior extends C3.SDKBehaviorBase{constructor(opts){super(opts)}Release(){super.Release()}}}{const C3=self.C3;C3.Behaviors.Platform.Type=class PlatformType extends C3.SDKBehaviorTypeBase{constructor(behaviorType){super(behaviorType)}Release(){super.Release()}OnCreate(){}}}
 {const C3=self.C3;const C3X=self.C3X;const IBehaviorInstance=self.IBehaviorInstance;const MAX_SPEED=0;const ACCELERATION=1;const DECELERATION=2;const JUMP_STRENGTH=3;const GRAVITY=4;const MAX_FALL_SPEED=5;const DOUBLE_JUMP=6;const JUMP_SUSTAIN=7;const DEFAULT_CONTROLS=8;const ENABLE=9;const FALLTHROUGH_TIMEOUT=.05;function accelerate(velocity,min_speed,max_speed,acceleration,dt){const min=min_speed*dt;const max=max_speed*dt;return C3.clamp(velocity*dt+.5*acceleration*dt*dt,min,max)}C3.Behaviors.Platform.Instance=
 class PlatformInstance extends C3.SDKBehaviorInstanceBase{constructor(behInst,properties){super(behInst);this._keyboardDisposables=null;this._leftKey=false;this._rightKey=false;this._jumpKey=false;this._jumped=false;this._doubleJumped=false;this._canDoubleJump=false;this._ignoreInput=false;this._simLeft=false;this._simRight=false;this._simJump=false;this._lastFloorObject=null;this._loadFloorUid=-1;this._lastFloorX=0;this._lastFloorY=0;this._floorIsJumpthru=false;this._wasOnFloor=false;this._wasOverJumpthru=
@@ -3878,6 +3896,7 @@ self.C3_GetObjectRefTable = function () {
 		C3.Behaviors.jumpthru,
 		C3.Plugins.Text,
 		C3.Plugins.Audio,
+		C3.Plugins.LocalStorage,
 		C3.Plugins.Touch.Cnds.OnTapGesture,
 		C3.Plugins.System.Cnds.CompareBoolVar,
 		C3.Behaviors.Platform.Acts.SimulateControl,
@@ -3905,13 +3924,19 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.System.Acts.SetBoolVar,
 		C3.Plugins.Sprite.Acts.SetPos,
 		C3.Plugins.Text.Acts.SetPos,
+		C3.Plugins.LocalStorage.Acts.CheckItemExists,
 		C3.Plugins.System.Acts.AddVar,
 		C3.Plugins.Touch.Cnds.IsTouchingObject,
 		C3.Plugins.System.Acts.RestartLayout,
+		C3.Plugins.System.Cnds.OnLayoutStart,
 		C3.Plugins.System.Acts.ResetGlobals,
+		C3.Plugins.LocalStorage.Cnds.OnItemExists,
+		C3.Plugins.LocalStorage.Cnds.CompareValue,
+		C3.Plugins.LocalStorage.Acts.SetItem,
+		C3.Plugins.LocalStorage.Cnds.OnItemMissing,
 		C3.Plugins.Touch.Cnds.OnTouchStart,
 		C3.Plugins.System.Acts.GoToLayout,
-		C3.Plugins.System.Cnds.OnLayoutStart
+		C3.Plugins.LocalStorage.Exps.ItemValue
 	];
 };
 self.C3_JsPropNameTable = [
@@ -3934,6 +3959,8 @@ self.C3_JsPropNameTable = [
 	{Text: 0},
 	{Sprite2: 0},
 	{Text2: 0},
+	{LocalStorage: 0},
+	{TextHighScore: 0},
 	{max_x: 0},
 	{game_speed: 0},
 	{next_platform: 0},
@@ -3942,6 +3969,7 @@ self.C3_JsPropNameTable = [
 	{next_banana_b: 0},
 	{next_trap_a: 0},
 	{next_trap_b: 0},
+	{next_trap_c: 0},
 	{run_game: 0}
 ];
 }
@@ -4087,10 +4115,14 @@ self.C3_ExpressionFuncs = [
 		() => 1,
 		() => 800,
 		() => 300,
+		() => 0.5,
 		() => 290,
+		() => 430,
 		() => 2,
 		() => 170,
+		() => 1.3,
 		() => 160,
+		() => 1.7,
 		() => "Jump",
 		() => "Fall",
 		p => {
@@ -4102,8 +4134,13 @@ self.C3_ExpressionFuncs = [
 		() => 360,
 		() => 240,
 		() => 80,
+		() => "Score",
 		() => 20,
-		() => 10
+		() => 10,
+		p => {
+			const f0 = p._GetNode(0).GetBoundMethod();
+			return () => ("High Score: " + (f0()).toString());
+		}
 ];
 
 
