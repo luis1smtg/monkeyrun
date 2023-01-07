@@ -3934,6 +3934,8 @@ self.C3_GetObjectRefTable = function () {
 		C3.Plugins.LocalStorage.Cnds.CompareValue,
 		C3.Plugins.LocalStorage.Acts.SetItem,
 		C3.Plugins.LocalStorage.Cnds.OnItemMissing,
+		C3.Plugins.TiledBg.Cnds.CompareX,
+		C3.Plugins.TiledBg.Acts.Destroy,
 		C3.Plugins.Touch.Cnds.OnTouchStart,
 		C3.Plugins.System.Acts.GoToLayout,
 		C3.Plugins.LocalStorage.Exps.ItemValue
@@ -3961,6 +3963,7 @@ self.C3_JsPropNameTable = [
 	{Text2: 0},
 	{LocalStorage: 0},
 	{TextHighScore: 0},
+	{Sprite3: 0},
 	{max_x: 0},
 	{game_speed: 0},
 	{next_platform: 0},
@@ -4137,6 +4140,8 @@ self.C3_ExpressionFuncs = [
 		() => "Score",
 		() => 20,
 		() => 10,
+		() => -500,
+		() => 1000,
 		p => {
 			const f0 = p._GetNode(0).GetBoundMethod();
 			return () => ("High Score: " + (f0()).toString());
